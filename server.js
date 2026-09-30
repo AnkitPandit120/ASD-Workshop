@@ -14,19 +14,24 @@ async function readProducts() {
     }
 }
 
-app.get("/products", async (req, res) => {
+// create a function called readfile with delay , delay the readfile settiem out 1500 
+
+
+
+
+app.get("/products/:id", async (req, res) => {
     try {
         const products = await readProducts();
-        console.log(products)
-        res.json(products)
+
+        let id= req.params.id
+        id=Number(id)
+        let product= products.find((item)=> item.id==id)
+        res.json(product)
+
     } catch (error) {
         console.error(error);
     }
 });
-
-// app.post("/", (req, res) => {
-//     res.send("data received");
-// });
 
 
 app.listen(3000, () => {
