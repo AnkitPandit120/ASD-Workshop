@@ -16,12 +16,27 @@ async function readProducts() {
 
 // create a function called readfile with delay , delay the readfile settiem out 1500 
 
+async function readfilewithdelay(){
+    await new Promise((resolve,reject)=>{
+        setTimeout(resolve, 1500);
 
+    })
+    let readfile= readProducts();
+    return readfile
 
+}
+app.get("/products", async (req, res) => {
+    try {
+        const products = await readfilewithdelay();
+        res.json(products);
+    } catch (error) {
+        console.error(error);
+    }
+});
 
 app.get("/products/:id", async (req, res) => {
     try {
-        const products = await readProducts();
+        const products = await readfilewithdelay();
 
         let id= req.params.id
         id=Number(id)
