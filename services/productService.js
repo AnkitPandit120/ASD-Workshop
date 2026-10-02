@@ -1,6 +1,4 @@
-const { readProducts } = require("../database/productDatabase");
-
-const cache = {};
+const { readProducts, writeProducts } = require("../database/productDatabase");
 
 async function readfilewithdelay() {
   await new Promise((resolve) => {
@@ -10,26 +8,55 @@ async function readfilewithdelay() {
 }
 
 async function getProducts() {
-  const key = "/products";
-  if (cache[key]) {
-    return cache[key];
-  }
-
-  const products = await readfilewithdelay();
-  cache[key] = products;
-  return products;
+  return readfilewithdelay();
 }
 
 async function getProductById(id) {
-  const key = `/products/${id}`;
-  if (cache[key]) {
-    return cache[key];
-  }
-
   const products = await readfilewithdelay();
-  const product = products.find((item) => item.id === Number(id));
-  cache[key] = product;
+  return products.find((item) => item.id === Number(id));
+}
+
+async function createProduct(productData) {
+  const products = await readProducts();
+  const id =
+    products.reduce((maxId, item) => Math.max(maxId, Number(item.id) || 0), 0) +
+    1;
+  const product = { ...productData, id };
+  products.push(product);
+  await writeProducts(products);
   return product;
 }
 
-module.exports = { getProducts, getProductById };
+async function updateProduct(id, productData, replace = false) {
+  const products = await readProducts();
+  const index = products.findIndex((item) => item.id === Number(id));
+  if (index === -1) {
+    return null;
+  }
+
+  products[index] = replace
+    ? { ...productData, id: Number(id) }
+    : { ...products[index], ...productData, id: Number(id) };
+  await writeProducts(products);
+  return products[index];
+}
+
+async function deleteProduct(id) {
+  const products = await readProducts();
+  const index = products.findIndex((item) => item.id === Number(id));
+  if (index === -1) {
+    return null;
+  }
+
+  const [product] = products.splice(index, 1);
+  await writeProducts(products);
+  return product;
+}
+
+module.exports = {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+};

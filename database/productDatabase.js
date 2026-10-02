@@ -8,4 +8,8 @@ async function readProducts() {
   return JSON.parse(data);
 }
 
-module.exports = { readProducts };
+async function writeProducts(products) {
+  await fs.writeFile(location, JSON.stringify(products, null, 2));
+}
+
+module.exports = { readProducts, writeProducts };
